@@ -10,6 +10,9 @@
 		4CAC4727DFA43E4FBD611404 /* Pods_GitHubGists.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AFBAF924B8803AD046E8AE80 /* Pods_GitHubGists.framework */; };
 		7B0FFF411C988C0300295732 /* GitHubAPIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B0FFF401C988C0300295732 /* GitHubAPIManager.swift */; };
 		7B3D21AB1C988DF7007D78D5 /* GistRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D21AA1C988DF7007D78D5 /* GistRouter.swift */; };
+		7B3D21AD1C98B6B8007D78D5 /* Gist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D21AC1C98B6B8007D78D5 /* Gist.swift */; };
+		7B3D21B01C98BFC1007D78D5 /* ResponseJSONObjectSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D21AF1C98BFC1007D78D5 /* ResponseJSONObjectSerializable.swift */; };
+		7B3D21B21C98C12A007D78D5 /* AlamofireRequest+JSONSerializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B3D21B11C98C12A007D78D5 /* AlamofireRequest+JSONSerializable.swift */; };
 		7B6CDD2C1C98882C008080D1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6CDD2B1C98882C008080D1 /* AppDelegate.swift */; };
 		7B6CDD2E1C98882C008080D1 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6CDD2D1C98882C008080D1 /* MasterViewController.swift */; };
 		7B6CDD301C98882C008080D1 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B6CDD2F1C98882C008080D1 /* DetailViewController.swift */; };
@@ -22,6 +25,9 @@
 		56BE92A16F3CDF4A9457AE9C /* Pods-GitHubGists.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GitHubGists.debug.xcconfig"; path = "Pods/Target Support Files/Pods-GitHubGists/Pods-GitHubGists.debug.xcconfig"; sourceTree = "<group>"; };
 		7B0FFF401C988C0300295732 /* GitHubAPIManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GitHubAPIManager.swift; sourceTree = "<group>"; };
 		7B3D21AA1C988DF7007D78D5 /* GistRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GistRouter.swift; sourceTree = "<group>"; };
+		7B3D21AC1C98B6B8007D78D5 /* Gist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gist.swift; sourceTree = "<group>"; };
+		7B3D21AF1C98BFC1007D78D5 /* ResponseJSONObjectSerializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseJSONObjectSerializable.swift; sourceTree = "<group>"; };
+		7B3D21B11C98C12A007D78D5 /* AlamofireRequest+JSONSerializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AlamofireRequest+JSONSerializable.swift"; sourceTree = "<group>"; };
 		7B6CDD281C98882C008080D1 /* GitHubGists.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GitHubGists.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7B6CDD2B1C98882C008080D1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7B6CDD2D1C98882C008080D1 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -74,6 +80,14 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		7B3D21AE1C98BF98007D78D5 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				7B3D21AC1C98B6B8007D78D5 /* Gist.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
 		7B6CDD1F1C98882C008080D1 = {
 			isa = PBXGroup;
 			children = (
@@ -98,9 +112,12 @@
 				7B6CDD311C98882C008080D1 /* Main.storyboard */,
 				7B6CDD2D1C98882C008080D1 /* MasterViewController.swift */,
 				7B6CDD2F1C98882C008080D1 /* DetailViewController.swift */,
-				7B0FFF3F1C988B5900295732 /* Supporting Files */,
+				7B3D21AE1C98BF98007D78D5 /* Model */,
 				7B0FFF401C988C0300295732 /* GitHubAPIManager.swift */,
 				7B3D21AA1C988DF7007D78D5 /* GistRouter.swift */,
+				7B0FFF3F1C988B5900295732 /* Supporting Files */,
+				7B3D21AF1C98BFC1007D78D5 /* ResponseJSONObjectSerializable.swift */,
+				7B3D21B11C98C12A007D78D5 /* AlamofireRequest+JSONSerializable.swift */,
 			);
 			path = GitHubGists;
 			sourceTree = "<group>";
@@ -229,9 +246,12 @@
 			files = (
 				7B6CDD301C98882C008080D1 /* DetailViewController.swift in Sources */,
 				7B0FFF411C988C0300295732 /* GitHubAPIManager.swift in Sources */,
+				7B3D21B01C98BFC1007D78D5 /* ResponseJSONObjectSerializable.swift in Sources */,
+				7B3D21AD1C98B6B8007D78D5 /* Gist.swift in Sources */,
 				7B6CDD2E1C98882C008080D1 /* MasterViewController.swift in Sources */,
 				7B3D21AB1C988DF7007D78D5 /* GistRouter.swift in Sources */,
 				7B6CDD2C1C98882C008080D1 /* AppDelegate.swift in Sources */,
+				7B3D21B21C98C12A007D78D5 /* AlamofireRequest+JSONSerializable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

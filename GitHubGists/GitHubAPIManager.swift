@@ -19,12 +19,11 @@ class GitHubAPIManager {
     Alamofire.request(GistRouter.GetPublic()).responseString { (response) -> Void in
     
       if let receivedString = response.result.value {
-      print("called")
         print(receivedString)
       }
     
     }
-    
   }
 
+  
 }
