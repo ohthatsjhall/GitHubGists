@@ -11,6 +11,20 @@ import Alamofire
 import SwiftyJSON
 
 class GitHubAPIManager {
-
+  
+  static let sharedInstance = GitHubAPIManager()
+  
+  func printPublicGists() -> () {
+    
+    Alamofire.request(GistRouter.GetPublic()).responseString { (response) -> Void in
+    
+      if let receivedString = response.result.value {
+      print("called")
+        print(receivedString)
+      }
+    
+    }
+    
+  }
 
 }

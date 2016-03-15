@@ -31,10 +31,10 @@ class MasterViewController: UITableViewController {
     self.clearsSelectionOnViewWillAppear = self.splitViewController!.collapsed
     super.viewWillAppear(animated)
   }
-
-  override func didReceiveMemoryWarning() {
-    super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    GitHubAPIManager.sharedInstance.printPublicGists()
   }
 
   func insertNewObject(sender: AnyObject) {
