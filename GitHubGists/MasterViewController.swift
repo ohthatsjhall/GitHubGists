@@ -41,7 +41,19 @@ class MasterViewController: UITableViewController {
   // MARK: - Instance Methods
   
   func loadGists() {
-    GitHubAPIManager.sharedInstance.printPublicGists()
+    GitHubAPIManager.sharedInstance.getPublicGists { (result) -> Void in
+      
+      guard result.error == nil else {
+        print(result.error)
+        return
+      }
+      
+      if let fetchedGists = result.value {
+        self.gists = fetchedGists
+      }
+      
+      self.tableView.reloadData()
+    }
   }
 
   func insertNewObject(sender: AnyObject) {
