@@ -10,6 +10,7 @@ import UIKit
 
 class MasterViewController: UITableViewController {
 
+  var imageCache = [String : UIImage?]()
   var detailViewController: DetailViewController? = nil
   var gists = [Gist]()
 
@@ -93,6 +94,29 @@ class MasterViewController: UITableViewController {
     let gist = gists[indexPath.row]
     cell.textLabel?.text = gist.description
     cell.detailTextLabel?.text = gist.ownerLogin
+    
+    if let urlString = gist.ownerAvatarURL {
+      if let cacheImage  = imageCache[urlString] {
+        cell.imageView?.image = cacheImage
+      } else {
+        GitHubAPIManager.sharedInstance.imageForURLString(urlString, completionHandler: { (image, error) -> Void in
+          
+          if let error = error {
+            print("error parsing image: \(error.localizedDescription)")
+          }
+          
+          //lightweight way to save the image as user scrolls
+          self.imageCache[urlString] = image
+        
+          if let cellToUpdate = self.tableView?.cellForRowAtIndexPath(indexPath) {
+            cellToUpdate.imageView?.image = image
+            cellToUpdate.setNeedsLayout()
+          }
+        })
+      }
+    } else {
+      cell.imageView?.image = nil
+    }
     
     return cell
   }
