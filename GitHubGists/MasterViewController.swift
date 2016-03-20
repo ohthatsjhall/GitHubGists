@@ -7,12 +7,15 @@
 //
 
 import UIKit
+import PINRemoteImage
 
 class MasterViewController: UITableViewController {
 
   var imageCache = [String : UIImage?]()
   var detailViewController: DetailViewController? = nil
   var gists = [Gist]()
+  var nextPageURLString: String?
+  var isLoading = false
 
   //MARK: - View Controller Lifecycle
 
@@ -36,13 +39,17 @@ class MasterViewController: UITableViewController {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
-    loadGists()
+    loadGists(nil)
   }
   
   // MARK: - Instance Methods
   
-  func loadGists() {
-    GitHubAPIManager.sharedInstance.getPublicGists { (result) -> Void in
+  func loadGists(urlToLoad: String?) {
+    self.isLoading = true
+    GitHubAPIManager.sharedInstance.getPublicGists(urlToLoad) { (result, nextPage) -> Void in
+      
+      self.isLoading = false
+      self.nextPageURLString = nextPage
       
       guard result.error == nil else {
         print(result.error)
@@ -50,7 +57,11 @@ class MasterViewController: UITableViewController {
       }
       
       if let fetchedGists = result.value {
-        self.gists = fetchedGists
+        if self.nextPageURLString != nil {
+          self.gists += fetchedGists
+        } else {
+          self.gists = fetchedGists
+        }
       }
       
       self.tableView.reloadData()
@@ -95,27 +106,21 @@ class MasterViewController: UITableViewController {
     cell.textLabel?.text = gist.description
     cell.detailTextLabel?.text = gist.ownerLogin
     
-    if let urlString = gist.ownerAvatarURL {
-      if let cacheImage  = imageCache[urlString] {
-        cell.imageView?.image = cacheImage
-      } else {
-        GitHubAPIManager.sharedInstance.imageForURLString(urlString, completionHandler: { (image, error) -> Void in
-          
-          if let error = error {
-            print("error parsing image: \(error.localizedDescription)")
-          }
-          
-          //lightweight way to save the image as user scrolls
-          self.imageCache[urlString] = image
-        
-          if let cellToUpdate = self.tableView?.cellForRowAtIndexPath(indexPath) {
-            cellToUpdate.imageView?.image = image
-            cellToUpdate.setNeedsLayout()
-          }
-        })
-      }
+    if let urlString = gist.ownerAvatarURL, url = NSURL(string: urlString) {
+    
+      cell.imageView?.pin_setImageFromURL(url, placeholderImage: UIImage(named: "brackdaddies.png"))
+      
     } else {
       cell.imageView?.image = nil
+    }
+    
+    // See if we need to load more gists
+    let rowsToLoadFromBottom = 5
+    let rowsLoaded = gists.count
+    if let nextPage = nextPageURLString {
+      if (!isLoading && (indexPath.row >= (rowsLoaded - rowsToLoadFromBottom))) {
+        self.loadGists(nextPage)
+      }
     }
     
     return cell
