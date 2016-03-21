@@ -20,77 +20,82 @@ class GitHubAPIManager {
     alamofireManager = Alamofire.Manager(configuration: configuration)
   }
   
-  func printPublicGists() -> () {
-    
-    Alamofire.request(GistRouter.GetPublic()).responseString { (response) -> Void in
-    
+  // MARK: - Basic Auth
+  func printMyStarredGistsWithBasicAuthentication() -> Void {
+    Alamofire.request(GistRouter.GetMyStarred())
+      .responseString { (response) -> Void in
+        
       if let receivedString = response.result.value {
-        print(receivedString)
+        print("starred gists: \(receivedString)")
       }
     }
   }
   
+  func printPublicGists() -> Void {
+    alamofireManager.request(GistRouter.GetPublic())
+      .responseString { response in
+        if let receivedString = response.result.value {
+          print(receivedString)
+        }
+    }
+  }
   
   func getGists(urlRequest: URLRequestConvertible, completionHandler: (Result<[Gist], NSError>, String?) -> Void) {
-      alamofireManager.request(GistRouter.GetPublic()).validate()
-        .responseArray { (response: Response<[Gist], NSError>) -> Void in
-          
+    alamofireManager.request(urlRequest)
+      .validate()
+      .responseArray { (response:Response<[Gist], NSError>) in
         guard response.result.error == nil,
           let gists = response.result.value else {
-            print("error getting public gists:\(response.result.error)")
+            print(response.result.error)
             completionHandler(response.result, nil)
             return
         }
-          
+        
+        // need to figure out if this is the last page
+        // check the link header, if present
         let next = self.getNextPageFromHeaders(response.response)
         completionHandler(.Success(gists), next)
     }
   }
   
- 
   func getPublicGists(pageToLoad: String?, completionHandler: (Result<[Gist], NSError>, String?) -> Void) {
-    
     if let urlString = pageToLoad {
       getGists(GistRouter.GetAtPath(urlString), completionHandler: completionHandler)
     } else {
       getGists(GistRouter.GetPublic(), completionHandler: completionHandler)
     }
-    
   }
   
-  func imageForURLString(imageURLString: String, completionHandler: (UIImage?, NSError?) -> Void) {
-    
-    alamofireManager.request(.GET, imageURLString).response { (request, response, data, error) -> Void in
-      
-      if data == nil {
-        completionHandler(nil, nil)
+  func imageFromURLString(imageURLString: String, completionHandler:
+    (UIImage?, NSError?) -> Void) {
+      alamofireManager.request(.GET, imageURLString)
+        .response { (request, response, data, error) in
+          // use the generic response serializer that returns NSData
+          if data == nil {
+            completionHandler(nil, nil)
+            return
+          }
+          let image = UIImage(data: data! as NSData)
+          completionHandler(image, nil)
       }
-      
-      let image = UIImage(data: data!)
-      completionHandler(image, nil)
-      
-    }
   }
   
   private func getNextPageFromHeaders(response: NSHTTPURLResponse?) -> String? {
-    
     if let linkHeader = response?.allHeaderFields["Link"] as? String {
       /* looks like:
-      <https://api.github.com/user/20267/gists?page=2>; rel="next", <https://api.github.com/\
-      user/20267/gists?page=6>; rel="last"
+      <https://api.github.com/user/20267/gists?page=2>; rel="next", <https://api.github.com/user/20267/gists?page=6>; rel="last"
       */
-      // so spilt on ",", then on ";"
+      // so split on "," then on  ";"
       let components = linkHeader.characters.split {$0 == ","}.map { String($0) }
       // now we have 2 lines like
-      // <https://spi.github.com/user/20267/gists?page=2>; rel="next"'
-      // so let's get the URL out of there
-      
+      // '<https://api.github.com/user/20267/gists?page=2>; rel="next"'
+      // So let's get the URL out of there:
       for item in components {
         // see if it's "next"
         let rangeOfNext = item.rangeOfString("rel=\"next\"", options: [])
         if rangeOfNext != nil {
-          // found the component with the next URL
-          let rangeOfPaddedURL = item.rangeOfString("<(.*)>;", options: .RegularExpressionSearch)
+          let rangeOfPaddedURL = item.rangeOfString("<(.*)>;",
+            options: .RegularExpressionSearch)
           if let range = rangeOfPaddedURL {
             let nextURL = item.substringWithRange(range)
             // strip off the < and >;

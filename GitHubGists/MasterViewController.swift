@@ -45,31 +45,24 @@ class MasterViewController: UITableViewController {
     }
   }
   
-  override func viewDidAppear(animated: Bool) {
-    super.viewDidAppear(animated)
-    loadGists(nil)
-  }
-  
   // MARK: - Instance Methods
-  
-  func refresh(sender: AnyObject) {
-    nextPageURLString = nil // so it doesnt try and append the results
-    loadGists(nil)
-  }
+
   
   func loadGists(urlToLoad: String?) {
     self.isLoading = true
-    GitHubAPIManager.sharedInstance.getPublicGists(urlToLoad) { (result, nextPage) -> Void in
-      
+    GitHubAPIManager.sharedInstance.getPublicGists(urlToLoad) {
+      (result, nextPage) in
       self.isLoading = false
       self.nextPageURLString = nextPage
       
+      // tell refresh control it can stop showing up now
       if self.refreshControl != nil && self.refreshControl!.refreshing {
         self.refreshControl?.endRefreshing()
       }
       
       guard result.error == nil else {
         print(result.error)
+        // TODO: display error
         return
       }
       
@@ -81,12 +74,21 @@ class MasterViewController: UITableViewController {
         }
       }
       
-      let currentTime = NSDate()
-      let updateString = "Last Updated at \(self.dateFormatter.stringFromDate(currentTime))"
+      // update "last updated" title for refresh control
+      let now = NSDate()
+      let updateString = "Last Updated at " + self.dateFormatter.stringFromDate(now)
       self.refreshControl?.attributedTitle = NSAttributedString(string: updateString)
       
       self.tableView.reloadData()
     }
+  }
+  
+  override func viewDidAppear(animated: Bool) {
+    super.viewDidAppear(animated)
+    loadGists(nil)
+    
+    // TEST
+    GitHubAPIManager.sharedInstance.printMyStarredGistsWithBasicAuthentication()
   }
 
   func insertNewObject(sender: AnyObject) {
@@ -126,6 +128,7 @@ class MasterViewController: UITableViewController {
     let gist = gists[indexPath.row]
     cell.textLabel?.text = gist.description
     cell.detailTextLabel?.text = gist.ownerLogin
+    //cell.imageView?.image = nil
     
     if let urlString = gist.ownerAvatarURL, url = NSURL(string: urlString) {
     
@@ -161,6 +164,11 @@ class MasterViewController: UITableViewController {
     }
   }
 
+  // MARK: - Pull to Refresh
+  func refresh(sender:AnyObject) {
+    nextPageURLString = nil // so it doesn't try to append the results
+    loadGists(nil)
+  }
 
 }
 
