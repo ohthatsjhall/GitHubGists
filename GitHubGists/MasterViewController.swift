@@ -11,8 +11,8 @@ import PINRemoteImage
 
 class MasterViewController: UITableViewController {
 
-  var imageCache = [String : UIImage?]()
   var detailViewController: DetailViewController? = nil
+  var dateFormatter = NSDateFormatter()
   var gists = [Gist]()
   var nextPageURLString: String?
   var isLoading = false
@@ -35,6 +35,14 @@ class MasterViewController: UITableViewController {
   override func viewWillAppear(animated: Bool) {
     self.clearsSelectionOnViewWillAppear = self.splitViewController!.collapsed
     super.viewWillAppear(animated)
+    // add refresh control for pull to refresh
+    if self.refreshControl == nil {
+      self.refreshControl = UIRefreshControl()
+      self.refreshControl?.attributedTitle = NSAttributedString(string: "Pull to refresh")
+      self.refreshControl?.addTarget(self, action: "refresh:", forControlEvents: .ValueChanged)
+      self.dateFormatter.dateStyle = .ShortStyle
+      self.dateFormatter.timeStyle = .LongStyle
+    }
   }
   
   override func viewDidAppear(animated: Bool) {
@@ -44,12 +52,21 @@ class MasterViewController: UITableViewController {
   
   // MARK: - Instance Methods
   
+  func refresh(sender: AnyObject) {
+    nextPageURLString = nil // so it doesnt try and append the results
+    loadGists(nil)
+  }
+  
   func loadGists(urlToLoad: String?) {
     self.isLoading = true
     GitHubAPIManager.sharedInstance.getPublicGists(urlToLoad) { (result, nextPage) -> Void in
       
       self.isLoading = false
       self.nextPageURLString = nextPage
+      
+      if self.refreshControl != nil && self.refreshControl!.refreshing {
+        self.refreshControl?.endRefreshing()
+      }
       
       guard result.error == nil else {
         print(result.error)
@@ -63,6 +80,10 @@ class MasterViewController: UITableViewController {
           self.gists = fetchedGists
         }
       }
+      
+      let currentTime = NSDate()
+      let updateString = "Last Updated at \(self.dateFormatter.stringFromDate(currentTime))"
+      self.refreshControl?.attributedTitle = NSAttributedString(string: updateString)
       
       self.tableView.reloadData()
     }
